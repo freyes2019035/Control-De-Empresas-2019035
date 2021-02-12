@@ -13,38 +13,34 @@ exports.getAdmins = async (req, res) => {
   });
 };
 
-exports.createAdmin = (userName, password, rol) => {
+exports.createAdmin = async (userName, password, rol) => {
   let user = new userModel();
   if (userName && password && rol) {
     user.userName = userName;
     user.password = password;
     user.rol = rol;
+    user.password = await encryptPassword(password)
     userModel
       .find({
         $or: [
-          { userName: user.userName ,
-           password: user.password ,
-           rol: user.rol },
+          { userName: user.userName,
+            rol: user.rol },
         ],
       })
       .exec((err, recordsFound) => {
-        if (err) {
-          console.log({ status: "Error on get the user" });
-        } else if (recordsFound && recordsFound.length >= 1) {
+        if(err){
+          console.log({ status: "Error on get the user" });  
+        }
+        if(recordsFound && recordsFound.length >= 1){
           console.log({ status: "User already exists in Data Base" });
-        } else {
-          // Preguntar si es necesario encriptar pass aqui no pasa nada
-           encryptPassword(password)
-            .then((result) => {user.password = result;})
-            .catch((err) => err);
-
+        }else{
           user.save((err, document) => {
             if (err) {
-              console.log({ status: "error on saving the user" });
-            } else {
-              console.log([{ status: "user saved" }, { userInfo: document }]);
-            }
-          });
+                console.log({ status: "error on saving the user" });
+              } else {
+                console.log([{ status: "user saved" }, { userInfo: document }]);
+              }
+            });
         }
       });
   } else {
@@ -62,3 +58,8 @@ const encryptPassword = (password) => {
     });
   });
 };
+const verifyPassword = (encryptedPassword, password) => {
+  bcrypt.compare(password, encryptedPassword, (err, resp) => {
+    if(err){return new Error(err)}else{return resp}
+  });
+}
