@@ -5,7 +5,7 @@ mongo.Promise = global.Promise;
 exports.connectToDb = () => {
   return new Promise((resolve, reject) => {
     mongo
-      .connect("mongodb://localhost:27017/dbKinal", {
+      .connect("mongodb://localhost:27017/dbKinalControlDeEmpresas", {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       })

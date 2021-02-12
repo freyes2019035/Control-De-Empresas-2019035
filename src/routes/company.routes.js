@@ -1,18 +1,11 @@
 'use strict' 
 const express = require('express');
 const router = express.Router();
+const companyController = require('../components/company/company.controller')
 
-router.get('/', (req, res) => {
-    res.send({"status": "get all the companies"})
-})
-router.post('/', (req, res) => {
-    res.send({"status": "post a companie"})
-})
-router.put('/', (req, res) => {
-    res.send({"status": "put a companie"})
-})
-router.delete('/', (req, res) => {
-    res.send({"status": "delete a companie"})
-})
+router.get('/', companyController.getCompanies)
+router.post('/', companyController.createCompany)
+router.put('/:id', companyController.updateCompany)
+router.delete('/:id', companyController.deleteCompany)
 
 module.exports = router;
