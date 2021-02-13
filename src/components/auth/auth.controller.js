@@ -3,6 +3,7 @@ const jwt = require('../../services/auth/auth.service');
 const userModel = require('../../models/user.models')
 exports.login = (req, res) => {
     var params = req.body;
+    console.log(req.body)
     userModel.findOne({userName: params.userName}, (err, user) => {
         (err) 
             ? 
@@ -11,11 +12,10 @@ exports.login = (req, res) => {
             (user) 
             ? 
             bcrypt.compare(params.password, user.password, (err, accessGranted) => {
-                console.log(user)
                 if(accessGranted){
                     if(params.getToken === 'true'){
                         return res.status(200).send({
-                            token: jwt.createToken(user)
+                            token: jwt.createToken(user),
                         })
                     }else{
                         user.password = undefined;

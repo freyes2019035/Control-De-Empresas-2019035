@@ -21,6 +21,6 @@ exports.ensureAuth = (req, res, next) => {
     }
 
 
-    req.user = payload
+    req.user = payload;
     next()
 }

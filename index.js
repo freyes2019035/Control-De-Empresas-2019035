@@ -27,7 +27,7 @@ app.use(bodyParser.json())
 app.use(morgan('dev'))
 // Routes
 app.use("/company", companyRoutes);
-app.use("/admin", userRoutes);
+app.use("/users", userRoutes);
 app.use("/employee", employeeRoutes);
 app.use("/auth", authRoutes);
 // Start Main App
