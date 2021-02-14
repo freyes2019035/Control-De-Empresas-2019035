@@ -132,5 +132,6 @@ exports.deleteEmployee = async (req, res) => {
 
 
 exports.example = (req, res) => {
-  res.send(req.user)
+  // res.send({"company": req.user.company[0]["_id"]})
+  res.send(req.user.rol)
 }

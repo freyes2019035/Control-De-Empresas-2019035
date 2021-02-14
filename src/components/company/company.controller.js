@@ -11,33 +11,37 @@ exports.getCompanies = async (req, res) => {
   })
 }
 exports.createCompany = (req, res) => {
-    let company = new companyModel();
-    const { name } = req.body;
-    if(name){
-      company.name = name;
-      companyModel
-      .find({
-        $or: [
-          { companyName: company.name },
-        ],
-      }).exec((err, documents) => {
-        if(err){
-          res.status(500).status({"status": "error on create the company"})
-        }else if(documents && documents.length >= 1){
-          res.status(500).status({"status": "Company already exists in DB"})
-        }else{
-          company.save((err, document) => {
-            if(err){
-              res.status(500).send({"status": "error on save the company"})
-            }else{
-              res.status(200).send([{"status": "OK"}, {"companyInfo": document}])
-            }
-          })
-        }
-      })
-    }else{
-      res.status(500).send({"status": "missing some parameters"})
-    }
+ if(req.user.rol === "admin"){
+  let company = new companyModel();
+  const { name } = req.body;
+  if(name){
+    company.name = name;
+    companyModel
+    .find({
+      $or: [
+        { companyName: company.name },
+      ],
+    }).exec((err, documents) => {
+      if(err){
+        res.status(500).status({"status": "error on create the company"})
+      }else if(documents && documents.length >= 1){
+        res.status(500).status({"status": "Company already exists in DB"})
+      }else{
+        company.save((err, document) => {
+          if(err){
+            res.status(500).send({"status": "error on save the company"})
+          }else{
+            res.status(200).send([{"status": "OK"}, {"companyInfo": document}])
+          }
+        })
+      }
+    })
+  }else{
+    res.status(500).send({"status": "missing some parameters"})
+  }
+ }else{
+   res.status(401).send({"status": "Access denied insufficient permissions"})
+ }
 }
 exports.updateCompany = (req, res) => {
   const { id } = req.params;
