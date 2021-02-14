@@ -9,7 +9,8 @@ exports.createToken = (user) => {
         userName: user.userName,
         rol: user.rol,
         iat: moment().unix(),
-        exp: moment().day(10, 'days').unix()
+        exp: moment().day(10, 'days').unix(),
+        company: user.company
     }
     return jwt.encode(payload, secret)
 }

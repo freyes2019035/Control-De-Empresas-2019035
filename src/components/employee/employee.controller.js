@@ -129,3 +129,8 @@ exports.deleteEmployee = async (req, res) => {
     }
   );
 };
+
+
+exports.example = (req, res) => {
+  res.send(req.user)
+}
