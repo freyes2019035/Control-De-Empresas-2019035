@@ -45,53 +45,57 @@ exports.getEmployeeByDepartament = (req, res) => {
 exports.createEmployee = async (req, res) => {
   let employee = new employeeModel();
   const { name, position, departament, company } = req.body;
-  if (name && position && departament && company) {
-    employee.name = name;
-    employee.position = position;
-    employee.departament = departament;
-    employee.company = company;
-    await companyModel.findOne({ "_id": objectID(company.toString()) }, (err, companyInfo) => {
-      if(err){console.log(err)}
-      if(companyInfo){
-        employeeModel.find(
-              {
-                $or: [
-                  {
-                    name: employee.name,
-                    position: employee.position,
-                    departament: employee.departament,
-                    company: employee.company,
-                  },
-                ],
-              },
-              (err, document) => {
-                if (err) {
-                  res.status(500).send({ status: "error getting employee from db" });
-                } else if (document && document.length >= 1) {
-                  console.log(document);
-                  res.status(500).send({ status: "employee already exists in db" });
-                } else {
-                  // Employee with nombre de empresa
-                   // employee.company = [companyInfo]
-                  // Quitar si no se necesita en modelo quitar y poner Schema.ObjectId
-                  employee.save((err, document) => {
-                    if (err) {
-                      console.log(err);
-                      res.status(500).send({ status: "Error saving employee check the paramaters" });
-                    } else {
-                      res.status(200).send([{ status: "OK" }, { employee: document }]);
-                    }
-                  });
+  if(req.user.company === company){
+    if (name && position && departament && company) {
+      employee.name = name;
+      employee.position = position;
+      employee.departament = departament;
+      employee.company = company;
+      await companyModel.findOne({ "_id": objectID(company.toString()) }, (err, companyInfo) => {
+        if(err){console.log(err)}
+        if(companyInfo){
+          employeeModel.find(
+                {
+                  $or: [
+                    {
+                      name: employee.name,
+                      position: employee.position,
+                      departament: employee.departament,
+                      company: employee.company,
+                    },
+                  ],
+                },
+                (err, document) => {
+                  if (err) {
+                    res.status(500).send({ status: "error getting employee from db" });
+                  } else if (document && document.length >= 1) {
+                    console.log(document);
+                    res.status(500).send({ status: "employee already exists in db" });
+                  } else {
+                    // Employee with nombre de empresa
+                     // employee.company = [companyInfo]
+                    // Quitar si no se necesita en modelo quitar y poner Schema.ObjectId
+                    employee.save((err, document) => {
+                      if (err) {
+                        console.log(err);
+                        res.status(500).send({ status: "Error saving employee check the paramaters" });
+                      } else {
+                        res.status(200).send([{ status: "OK" }, { employee: document }]);
+                      }
+                    });
+                  }
                 }
-              }
-            );
-      }else{
-        res.status(404).send({"status": "Company not found"})
-      }
-    });
-    
-  } else {
-    res.status(500).send({ status: "missing some parameters" });
+              );
+        }else{
+          res.status(404).send({"status": "Company not found"})
+        }
+      });
+      
+    } else {
+      res.status(500).send({ status: "missing some parameters" });
+    }
+  }else{
+    res.status(401).send({"status": "Warning !! You cannot add employees who are not from your company"})
   }
 };
 
@@ -134,5 +138,5 @@ exports.deleteEmployee = async (req, res) => {
 
 exports.example = (req, res) => {
   // res.send({"company": req.user.company[0]["_id"]})
-  res.send(req.user.rol)
+  res.send(req.user.company)
 }

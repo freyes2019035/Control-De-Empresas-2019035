@@ -9,7 +9,7 @@ router.get('/:id', employeeController.getEmployee)
 router.get('/name/:name', employeeController.getEmployeeByName)
 router.get('/position/:position', employeeController.getEmployeeByPosition)
 router.get('/departament/:departament', employeeController.getEmployeeByDepartament)
-router.post('/',employeeController.createEmployee)
+router.post('/',auth_middleWare.ensureAuth,employeeController.createEmployee)
 router.put('/:id', employeeController.updateEmployee)
 router.delete('/:id', employeeController.deleteEmployee)
 
