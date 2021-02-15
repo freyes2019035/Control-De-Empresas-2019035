@@ -14,18 +14,19 @@ exports.createCompany = (req, res) => {
  if(req.user.rol === "admin"){
   let company = new companyModel();
   const { name } = req.body;
+  console.log(name);
   if(name){
     company.name = name;
     companyModel
     .find({
       $or: [
-        { companyName: company.name },
+        { name: company.name },
       ],
     }).exec((err, documents) => {
       if(err){
-        res.status(500).status({"status": "error on create the company"})
+        res.status(500).send({"status": "error on create the company"})
       }else if(documents && documents.length >= 1){
-        res.status(500).status({"status": "Company already exists in DB"})
+        res.status(500).send({"status": "Company already exists in DB"})
       }else{
         company.save((err, document) => {
           if(err){

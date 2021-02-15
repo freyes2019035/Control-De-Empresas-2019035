@@ -47,7 +47,7 @@ exports.createUser = async (req, res) => {
                 res.status(500).send({ status: "user already exists in db" });
               } else {
                 // user with nombre de empresa
-                user.company = [companyInfo];
+                // user.company = [companyInfo];
                 // Quitar si no se necesita en modelo quitar y poner Schema.ObjectId
                 user.save((err, document) => {
                   if (err) {

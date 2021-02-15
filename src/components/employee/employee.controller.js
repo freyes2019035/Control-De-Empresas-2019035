@@ -72,7 +72,7 @@ exports.createEmployee = async (req, res) => {
                   res.status(500).send({ status: "employee already exists in db" });
                 } else {
                   // Employee with nombre de empresa
-                  employee.company = [companyInfo]
+                   // employee.company = [companyInfo]
                   // Quitar si no se necesita en modelo quitar y poner Schema.ObjectId
                   employee.save((err, document) => {
                     if (err) {
@@ -108,6 +108,7 @@ exports.updateEmployee = (req, res) => {
         company: company,
       },
     },
+    {new: true},
     (err, resp) => {
       err
         ? res.status(500).send({ status: "error on update employee" })
