@@ -12,7 +12,7 @@ exports.getCompanies = async (req, res) => {
   });
 };
 exports.getPersonal = async (req, res) => {
-  const id = req.params.id;
+  const id = req.user.company;
   await employeeModel.countDocuments(
     { company: ObjectID(id) },
     (err, number) => {
