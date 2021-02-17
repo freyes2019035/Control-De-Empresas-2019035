@@ -1,9 +1,10 @@
 const objectID = require("mongodb").ObjectID;
 const employeeModel = require("../../models/employee.models");
 const companyModel = require("../../models/company.models");
-exports.getEmployees = (req, res) => {
+// Search 
+exports.getEmployees = async (req, res) => {
     const companyId = req.user.company;
-    employeeModel.find({"company": objectID(companyId)}, (err, documents) => {
+    await employeeModel.find({"company": objectID(companyId)}, (err, documents) => {
       if(err){
         res.status(500).send({"status": "error on get the company employees"})
       }else if(documents && documents.length >= 1){
@@ -11,9 +12,9 @@ exports.getEmployees = (req, res) => {
       }
     });
 };
-exports.getEmployee = (req, res) => {
+exports.getEmployee = async (req, res) => {
   const { id } = req.params;
-  employeeModel.findById({ _id: objectID(id.toString()) }, (err, document) => {
+  await employeeModel.findById({ _id: objectID(id.toString()) }, (err, document) => {
     if(err){
       res.status(500).send({ status: "error getting the employee" })
     }else if(document.company.toString() === req.user.company.toString()){
@@ -23,36 +24,45 @@ exports.getEmployee = (req, res) => {
     }
   });
 };
-exports.getEmployeeByName = (req, res) => {
+exports.getEmployeeByName = async (req, res) => {
   const { name } = req.params;
-  employeeModel.find({ "name": name.toString(), "company": objectID(req.user.company)}, (err, document) => {
+  await employeeModel.find({ "name": name.toString(), "company": objectID(req.user.company)}, (err, document) => {
     if(err){
       res.status(500).send({ status: "error getting the employee" })
     }else if(document && document.length >= 1){
         res.status(200).send(document)
     }else{
-      res.status(401).send({"status": "Warning !! We can't get that employee"})
+      res.status(401).send({"status": "Warning !! You cannot list a employee who are not from your company"})
     }
   });
 };
-exports.getEmployeeByPosition = (req, res) => {
+exports.getEmployeeByPosition = async (req, res) => {
   const { position } = req.params;
-  employeeModel.findOne({ "position": position.toString()}, (err, resp) => {
-    err
-      ? res.status(500).send({ status: "error getting the employee" })
-      : res.status(200).send(resp);
+  await employeeModel.find({ "position": position.toString(), "company": objectID(req.user.company)}, (err, document) => {
+    if(err){
+      res.status(500).send({ status: "error getting the employee" })
+    }else if(document && document.length >= 1){
+      res.status(200).send(document);
+    }else{
+      res.status(401).send({"status": "Warning !! You cannot list employees who are not from your company"})
+    }
   });
 };
-exports.getEmployeeByDepartament = (req, res) => {
+exports.getEmployeeByDepartament = async (req, res) => {
   const { departament } = req.params;
-  employeeModel.findOne({ "departament": departament.toString()}, (err, resp) => {
-    err
-      ? res.status(500).send({ status: "error getting the employee" })
-      : res.status(200).send(resp);
+  await employeeModel.find({ "departament": departament.toString(),  "company": objectID(req.user.company)}, (err, document) => {
+    if(err){
+      res.status(500).send({ status: "error getting the employee" })
+    }else if(document && document.length >= 1){
+      res.status(200).send(document);
+    }else{
+      res.status(401).send({"status": "Warning !! You cannot list employees who are not from your company"})
+    }
+    
   });
 };
 
-// Ready
+// CRU
 exports.createEmployee = async (req, res) => {
   let employee = new employeeModel();
   const { name, position, departament, company } = req.body;
