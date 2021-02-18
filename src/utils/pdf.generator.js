@@ -1,6 +1,8 @@
-const pdf = require("html-pdf");
+const Promise = require('bluebird')
+const pdf = Promise.promisifyAll(require('html-pdf'));
 const moment = require('moment');
 let today = moment().format('D MMM, YYYY');
+let todaym = moment().format('DMMMYYYY');
 let content = "";
 const generateBody = (data) => {
      content += `
@@ -143,33 +145,35 @@ const generateBody = (data) => {
     
     `
 }
-const generatePDF = async (data) => {
+exports.generatePDF = async (data) => {
+    content = "";
     generateBody(data);
-    pdf.create(content).toFile(`./company_data/companyReport_${data[0].company}__${today}.pdf`, (err, res) => {
-        if (err) {
-          console.log(err);
-        } else {
-         console.log(res)
-        }
-    });
+    return pdf.createAsync(content, { filename: `./company_data/companyReport.pdf` })
+    // pdf.createAsync(content).toFile(`./company_data/companyReport_${data[0].company}__${today}.pdf`, (err, res) => {
+    //     if (err) {
+    //       console.log(err);
+    //     } else {
+    //      console.log(res)
+    //     }
+    // });
 }
-const obj = [
-    {
-        "_id": "602ad2d03a21c12bff34b8cc",
-        "name": "Maria",
-        "position": "police",
-        "departament": "security",
-        "company": "6026f2bf2480af24793ce209",
-        "__v": 0
-    },
-    {
-        "_id": "602c1d5986d3a33b5c18f765",
-        "name": "Jhonny",
-        "position": "police Boss",
-        "departament": "security",
-        "company": "6026f2bf2480af24793ce209",
-        "__v": 0
-    }
-  ]
-  
-generatePDF(obj);
+// const obj = [
+//     {
+//         "_id": "602ad2d03a21c12bff34b8cc",
+//         "name": "Maria",
+//         "position": "police",
+//         "departament": "security",
+//         "company": "6026f2bf2480af24793ce209",
+//         "__v": 0
+//     },
+//     {
+//         "_id": "602c1d5986d3a33b5c18f765",
+//         "name": "Jhonny",
+//         "position": "police Boss",
+//         "departament": "security",
+//         "company": "6026f2bf2480af24793ce209",
+//         "__v": 0
+//     }
+// ]
+// generatePDF(obj).then(res => console.log(res));
+

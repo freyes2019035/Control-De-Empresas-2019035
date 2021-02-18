@@ -1,6 +1,7 @@
 const companyModel = require("../../models/company.models");
 const employeeModel = require("../../models/employee.models");
 const ObjectID = require("mongodb").ObjectID;
+const pdfGenerator = require('../../utils/pdf.generator')
 exports.getCompanies = async (req, res) => {
   await companyModel.find((err, docs) => {
     err
@@ -87,6 +88,28 @@ exports.deleteCompany = async (req, res) => {
     }
   );
 };
+
+exports.createPDF = async (req, res) => {
+  const obj = [
+        {
+            "_id": "602ad2d03a21c12bff34b8cc",
+            "name": "Maria",
+            "position": "police",
+            "departament": "security",
+            "company": "6026f2bf2480af24793ce209",
+            "__v": 0
+        },
+        {
+            "_id": "602c1d5986d3a33b5c18f765",
+            "name": "Jhonny",
+            "position": "police Boss",
+            "departament": "security",
+            "company": "6026f2bf2480af24793ce209",
+            "__v": 0
+        }
+    ]
+  await pdfGenerator.generatePDF(obj).then(data => res.download(data.filename))
+}
 
 
 
