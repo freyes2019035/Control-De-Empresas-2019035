@@ -1,7 +1,6 @@
 const companyModel = require("../../models/company.models");
 const employeeModel = require("../../models/employee.models");
 const ObjectID = require("mongodb").ObjectID;
-
 exports.getCompanies = async (req, res) => {
   await companyModel.find((err, docs) => {
     err
@@ -88,3 +87,6 @@ exports.deleteCompany = async (req, res) => {
     }
   );
 };
+
+
+

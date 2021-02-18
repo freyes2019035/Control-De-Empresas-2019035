@@ -9,5 +9,4 @@ router.get('/personal',auth_middleWare.ensureAuth,companyController.getPersonal)
 router.post('/', auth_middleWare.ensureAuth, companyController.createCompany)
 router.put('/:id', auth_middleWare.ensureAuth, companyController.updateCompany)
 router.delete('/:id', auth_middleWare.ensureAuth, companyController.deleteCompany)
-
 module.exports = router;
