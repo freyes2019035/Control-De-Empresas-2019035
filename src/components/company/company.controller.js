@@ -90,24 +90,15 @@ exports.deleteCompany = async (req, res) => {
 };
 
 exports.createPDF = async (req, res) => {
-  const obj = [
-        {
-            "_id": "602ad2d03a21c12bff34b8cc",
-            "name": "Maria",
-            "position": "police",
-            "departament": "security",
-            "company": "6026f2bf2480af24793ce209",
-            "__v": 0
-        },
-        {
-            "_id": "602c1d5986d3a33b5c18f765",
-            "name": "Jhonny",
-            "position": "police Boss",
-            "departament": "security",
-            "company": "6026f2bf2480af24793ce209",
-            "__v": 0
-        }
-    ]
+  let obj = [];
+  const companyId = req.user.company;
+  await employeeModel.find({"company": ObjectID(companyId)}, (err, documents) => {
+    if(err){
+      res.status(500).send({"status": "error on get the company employees"})
+    }else if(documents && documents.length >= 1){
+      obj = documents;
+    }
+  });
   await pdfGenerator.generatePDF(obj).then(data => res.download(data.filename))
 }
 
