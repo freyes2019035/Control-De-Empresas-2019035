@@ -66,14 +66,14 @@ exports.getEmployeeByDepartament = async (req, res) => {
 // CRU
 exports.createEmployee = async (req, res) => {
   let employee = new employeeModel();
-  const { name, position, departament, company } = req.body;
-  if(req.user.company === company){
-    if (name && position && departament && company) {
+  const { name, position, departament } = req.body;
+  if(req.user.company){
+    if (name && position && departament) {
       employee.name = name;
       employee.position = position;
       employee.departament = departament;
-      employee.company = company;
-      await companyModel.findOne({ "_id": objectID(company.toString()) }, (err, companyInfo) => {
+      employee.company = req.user.company;
+      await companyModel.findOne({ "_id": objectID(req.user.company.toString()) }, (err, companyInfo) => {
         if(err){console.log(err)}
         if(companyInfo){
           employeeModel.find(
@@ -91,7 +91,6 @@ exports.createEmployee = async (req, res) => {
                   if (err) {
                     res.status(500).send({ status: "error getting employee from db" });
                   } else if (document && document.length >= 1) {
-                    console.log(document);
                     res.status(500).send({ status: "employee already exists in db" });
                   } else {
                     // Employee with nombre de empresa
@@ -117,33 +116,36 @@ exports.createEmployee = async (req, res) => {
       res.status(500).send({ status: "missing some parameters" });
     }
   }else{
-    res.status(401).send({"status": "Warning !! You cannot add employees who are not from your company"})
+    res.status(401).send({"status": "Jmmmm... We can't detect the company in your user, try later"})
   }
 };
 exports.updateEmployee = (req, res) => {
   const { id } = req.params;
-  const { name, position, departament, company } = req.body;
-  console.log(name, position, departament, company);
-  if(req.user.company === company){
+  const { name, position, departament } = req.body;
+  if(req.user.company){
     employeeModel.findOneAndUpdate(
-      { _id: objectID(id.toString()) },
+      { _id: objectID(id.toString()), company: req.user.company },
       {
         $set: {
           name: name,
           position: position,
           departament: departament,
-          company: company,
+          company: req.user.company,
         },
       },
       {new: true},
       (err, resp) => {
-        err
-          ? res.status(500).send({ status: "error on update employee" })
-          : res.status(200).send([{ status: "OK" }, { employeeUpdated: resp }]);
+        if(err){
+          res.status(500).send({ status: "Warning !! Error on update employee" });
+        }else if(resp){
+          res.status(200).send([{ status: "OK" }, { employeeUpdated: resp }]);
+        }else{
+          res.status(500).send([{ status: "Jmmmmm... We can't find that employee in your company" }]);
+        }
       }
     );
   }else{
-    res.status(401).send({"status": "Warning !! You cannot update employees who are not from your company"})
+    res.status(401).send({"status": "Jmmmm... We can't detect the company in your user, try later"})
   }
 };
 exports.deleteEmployee = async (req, res) => {
@@ -171,14 +173,4 @@ exports.deleteEmployee = async (req, res) => {
       res.status(500).send({"status": "Employee doesn't exists in our records"})
     }
   })
-  // await employeeModel.findOneAndRemove(
-  //   { _id: objectID(id.toString()) },
-  //   (err, resp) => {
-  //     if (err) {
-  //       res.status(500).send({ status: "error on remove employee" });
-  //     } else {
-  //       res.status(200).send([{ status: "OK" }, { updatedEmployee: resp }]);
-  //     }
-  //   }
-  // );
 };
