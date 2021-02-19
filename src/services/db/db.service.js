@@ -1,3 +1,4 @@
+'use strict'
 const mongo = require("mongoose");
 mongo.Promise = global.Promise;
 

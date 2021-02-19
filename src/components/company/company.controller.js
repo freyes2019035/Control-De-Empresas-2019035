@@ -1,3 +1,4 @@
+'use strict'
 const companyModel = require("../../models/company.models");
 const employeeModel = require("../../models/employee.models");
 const ObjectID = require("mongodb").ObjectID;

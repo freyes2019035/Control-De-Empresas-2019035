@@ -1,3 +1,4 @@
+'use strict'
 const mongoose = require('mongoose')
 const objectId = require('mongoose').objectId
 let schema = mongoose.Schema;

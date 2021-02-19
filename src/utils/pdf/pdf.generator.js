@@ -1,3 +1,4 @@
+'use strict'
 const Promise = require('bluebird')
 const pdf = Promise.promisifyAll(require('html-pdf'));
 const moment = require('moment');
