@@ -66,29 +66,42 @@ exports.createCompany = (req, res) => {
   }
 };
 exports.updateCompany = (req, res) => {
-  const { id } = req.params;
-  const { name } = req.body;
-  console.log(name);
-  companyModel.findByIdAndUpdate(
-    { _id: ObjectID(id.toString()) },
-    { $set: { name: name } },
-    (err, resp) => {
-      err
-        ? res.status(500).send({ status: "error on update company" })
-        : res.status(200).send([{ status: "OK" }, { companyUpdated: resp }]);
+  if(req.user.rol === "admin"){
+    const { id } = req.params;
+    const { name } = req.body;
+    if (name) {
+      companyModel.findByIdAndUpdate(
+        { _id: ObjectID(id.toString()) },
+        { $set: { name: name } },
+        {new: true},
+        (err, resp) => {
+          err
+            ? res.status(500).send({ status: "error on update company" })
+            : res.status(200).send([{ status: "OK" }, { companyUpdated: resp }]);
+        }
+      );
+    } else {
+      res.status(500).send({ status: "missing some parameters" });
     }
-  );
+  }else{
+    res.status(401).send({ status: "Access denied insufficient permissions" });
+  }
+
 };
 exports.deleteCompany = async (req, res) => {
-  const { id } = req.params;
-  await companyModel.findByIdAndRemove(
-    { _id: ObjectID(id.toString()) },
-    (error, response) => {
-      error
-        ? res.status(500).send({ status: "error deleting company" })
-        : res.status(200).send([{ status: "OK" }, { response: response }]);
-    }
-  );
+  if(req.user.rol === "admin"){
+    const { id } = req.params;
+    await companyModel.findByIdAndRemove(
+      { _id: ObjectID(id.toString()) },
+      (error, response) => {
+        error
+          ? res.status(500).send({ status: "error deleting company" })
+          : res.status(200).send([{ status: "OK" }, { deleted: response }]);
+      }
+    );
+  }else{
+    res.status(401).send({ status: "Access denied insufficient permissions" });
+  }
 };
 
 exports.createPDF = async (req, res) => {
@@ -99,6 +112,8 @@ exports.createPDF = async (req, res) => {
       res.status(500).send({"status": "error on get the company employees"})
     }else if(documents && documents.length >= 1){
       obj = documents;
+    }else{
+      res.status(500).send({"status": "Jmmm you dont have any employee registered"})
     }
   });
   await pdfGenerator.generatePDF(obj).then(data => res.download(data.filename))
@@ -113,7 +128,7 @@ exports.createXLSX = async (req, res) => {
     }else if(documents && documents.length >= 1){
       obj = documents;
     }else{
-      res.status(500).send({"status": "error on get the company employees"})
+      res.status(500).send({"status": "Jmmm you dont have any employee registered"})
     }
   });
   await xlsxGenerator.generateXLSX(obj).then(data => {
