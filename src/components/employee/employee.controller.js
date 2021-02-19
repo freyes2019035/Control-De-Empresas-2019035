@@ -26,7 +26,7 @@ exports.getEmployee = async (req, res) => {
 };
 exports.getEmployeeByName = async (req, res) => {
   const { name } = req.params;
-  await employeeModel.find({ "name": name.toString(), "company": objectID(req.user.company)}, (err, document) => {
+  await employeeModel.find({ "name": {$regex: name.toString(), $options: 'i'}, "company": objectID(req.user.company)}, (err, document) => {
     if(err){
       res.status(500).send({ status: "error getting the employee" })
     }else if(document && document.length >= 1){
@@ -38,7 +38,7 @@ exports.getEmployeeByName = async (req, res) => {
 };
 exports.getEmployeeByPosition = async (req, res) => {
   const { position } = req.params;
-  await employeeModel.find({ "position": position.toString(), "company": objectID(req.user.company)}, (err, document) => {
+  await employeeModel.find({ "position": {$regex: position.toString(), $options: 'i'}, "company": objectID(req.user.company)}, (err, document) => {
     if(err){
       res.status(500).send({ status: "error getting the employee" })
     }else if(document && document.length >= 1){
@@ -50,7 +50,7 @@ exports.getEmployeeByPosition = async (req, res) => {
 };
 exports.getEmployeeByDepartament = async (req, res) => {
   const { departament } = req.params;
-  await employeeModel.find({ "departament": departament.toString(),  "company": objectID(req.user.company)}, (err, document) => {
+  await employeeModel.find({ "departament": {$regex: departament.toString(), $options: 'i'},  "company": objectID(req.user.company)}, (err, document) => {
     if(err){
       res.status(500).send({ status: "error getting the employee" })
     }else if(document && document.length >= 1){

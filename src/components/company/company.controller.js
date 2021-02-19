@@ -1,7 +1,7 @@
 const companyModel = require("../../models/company.models");
 const employeeModel = require("../../models/employee.models");
 const ObjectID = require("mongodb").ObjectID;
-const pdfGenerator = require('../../utils/pdf.generator')
+const pdfGenerator = require('../../utils/pdf/pdf.generator')
 exports.getCompanies = async (req, res) => {
   await companyModel.find((err, docs) => {
     err
@@ -102,5 +102,8 @@ exports.createPDF = async (req, res) => {
   await pdfGenerator.generatePDF(obj).then(data => res.download(data.filename))
 }
 
+exports.createXLSX = async (req, res) => {
+
+}
 
 
