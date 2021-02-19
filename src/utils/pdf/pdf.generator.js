@@ -148,6 +148,6 @@ const generateBody = (data) => {
 exports.generatePDF = async (data) => {
     content = "";
     generateBody(data);
-    return pdf.createAsync(content, { filename: `./company_data/companyReport_${data[0].company}__${today}.pdf` })
+    return pdf.createAsync(content, { filename: `./company_data/pdf/companyReport_${data[0].company}__${today}.pdf` })
 }
 
