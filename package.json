@@ -16,6 +16,7 @@
     "exceljs": "^4.2.0",
     "express": "^4.17.1",
     "html-pdf": "^2.2.0",
+    "json2xls": "^0.1.2",
     "jwt-simple": "^0.5.6",
     "moment": "^2.29.1",
     "mongoose": "^5.11.15",

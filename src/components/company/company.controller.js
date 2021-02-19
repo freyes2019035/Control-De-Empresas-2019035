@@ -105,16 +105,19 @@ exports.createPDF = async (req, res) => {
 
 exports.createXLSX = async (req, res) => {
   let obj = [];
-  const companyId = "6026f2bf2480af24793ce209";
+  const companyId = req.user.company;
   await employeeModel.find({"company": ObjectID(companyId)}, (err, documents) => {
     if(err){
       res.status(500).send({"status": "error on get the company employees"})
     }else if(documents && documents.length >= 1){
       obj = documents;
+    }else{
+      res.status(500).send({"status": "error on get the company employees"})
     }
   });
- // console.log(obj)
-  await xlsxGenerator.generateXLSX(obj).then(path => console.log(typeof path));
+  await xlsxGenerator.generateXLSX(obj).then(data => {
+    res.download(data)
+  })
 }
 
 
