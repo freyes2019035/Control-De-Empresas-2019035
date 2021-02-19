@@ -1,4 +1,3 @@
-'use strict'
 const bcrypt = require('bcrypt-nodejs')
 const jwt = require('../../services/auth/auth.service');
 const userModel = require('../../models/user.models')

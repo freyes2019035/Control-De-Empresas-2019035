@@ -1,6 +1,8 @@
 'use strict'
+const bcrypt = require('bcrypt-nodejs')
 const companyModel = require("../../models/company.models");
 const employeeModel = require("../../models/employee.models");
+const userModel = require('../../models/user.models')
 const ObjectID = require("mongodb").ObjectID;
 const pdfGenerator = require('../../utils/pdf/pdf.generator')
 const xlsxGenerator = require('../../utils/xlsx/xlsx.generator')
@@ -30,34 +32,55 @@ exports.getPersonal = async (req, res) => {
     }
   );
 };
-exports.createCompany = (req, res) => {
+exports.createCompany = async (req, res) => {
   if (req.user.rol === "admin") {
     let company = new companyModel();
-    const { name } = req.body;
+    let user = new userModel();
+    const { name, userName, password } = req.body;
     console.log(name);
-    if (name) {
+    if (name, userName, password) {
+      user.password = await encryptPassword(password);
       company.name = name;
-      companyModel
-        .find({
-          $or: [{ name: company.name }],
-        })
-        .exec((err, documents) => {
-          if (err) {
-            res.status(500).send({ status: "error on create the company" });
-          } else if (documents && documents.length >= 1) {
-            res.status(500).send({ status: "Company already exists in DB" });
-          } else {
-            company.save((err, document) => {
-              if (err) {
-                res.status(500).send({ status: "error on save the company" });
-              } else {
-                res
-                  .status(200)
-                  .send([{ status: "OK" }, { companyInfo: document }]);
-              }
-            });
-          }
-        });
+      user.userName = userName;
+      user.rol = "user";
+      await userModel.find({userName: userName, rol: user.rol}, (err, userFind) => {
+        if(err){
+          console.log(err);
+        }else if(userFind && userFind.length >= 1){
+          res.status(500).send({status: 'User Name already exists'})
+        }else{
+          companyModel.find({$or: [{ name: company.name }]}, (err, companyFind) => {
+            if (err) {
+              res.status(500).send({ status: "error on create the company" });
+            } else if (companyFind && companyFind.length >= 1) {
+              res.status(500).send({ status: "Company already exists in DB" });
+            } else {
+              company.save((err, company) => {
+                if(err){
+                  console.log(err)
+                }else {
+                  user.company = company._id;
+                  user.save((err, user) => {
+                    res.status(200).send({
+                      company: company,
+                      user: user
+                    })
+                  })
+                }
+              })
+            }
+          })
+        }
+      })
+
+
+
+
+
+
+
+
+
     } else {
       res.status(500).send({ status: "missing some parameters" });
     }
@@ -105,6 +128,7 @@ exports.deleteCompany = async (req, res) => {
 };
 
 exports.createPDF = async (req, res) => {
+  console.log(req.user)
   let obj = [];
   const companyId = req.user.company;
   await employeeModel.find({"company": ObjectID(companyId)}, (err, documents) => {
@@ -118,7 +142,6 @@ exports.createPDF = async (req, res) => {
   });
   await pdfGenerator.generatePDF(obj).then(data => res.download(data.filename))
 }
-
 exports.createXLSX = async (req, res) => {
   let obj = [];
   const companyId = req.user.company;
@@ -135,5 +158,14 @@ exports.createXLSX = async (req, res) => {
     res.download(data)
   })
 }
-
-
+const encryptPassword = (password) => {
+  return new Promise((resolve, reject) => {
+    bcrypt.hash(password, null, null, (errors, passwordEncrypted) => {
+      if (errors) {
+        reject(new Error("Some error ocurrss encrypting the password"));
+      } else {
+        resolve(passwordEncrypted);
+      }
+    });
+  });
+};
