@@ -5,62 +5,81 @@ const companyModel = require("../../models/company.models");
 // Search 
 exports.getEmployees = async (req, res) => {
     const companyId = req.user.company;
-    await employeeModel.find({"company": objectID(companyId)}, (err, documents) => {
-      if(err){
-        res.status(500).send({"status": "error on get the company employees"})
-      }else if(documents && documents.length >= 1){
-        res.send(documents)
-      }
-    });
+    if(companyId){
+      await employeeModel.find({"company": objectID(companyId)}, (err, documents) => {
+        if(err){
+          res.status(500).send({"status": "error on get the company employees"})
+        }else if(documents && documents.length >= 1){
+          res.send(documents)
+        }
+      });
+    }else{
+      res.status(401).send({"status": "Warning !! We can't get the company in your token"})
+    }
 };
 exports.getEmployee = async (req, res) => {
   const { id } = req.params;
-  await employeeModel.findById({ _id: objectID(id.toString()) }, (err, document) => {
-    if(err){
-      res.status(500).send({ status: "error getting the employee" })
-    }else if(document.company.toString() === req.user.company.toString()){
-      res.send([{"status": "OK"}, {"employee": document}])
-    }else{
-      res.status(401).send({"status": "Warning !! You cannot list a employee who are not from your company"})
-    }
-  });
+  if(req.user.company){
+    await employeeModel.findById({ _id: objectID(id.toString())}, (err, document) => {
+      if(err){
+        res.status(500).send({ status: "error getting the employee" })
+      }else if(document.company.toString() === req.user.company.toString()){
+        res.send([{"status": "OK"}, {"employee": document}])
+      }else{
+        res.status(401).send({"status": "Warning !! You cannot list a employee who are not from your company"})
+      }
+    });
+  }else{
+    res.status(401).send({"status": "Warning !! We can't get the company in your token"})
+  }
 };
 exports.getEmployeeByName = async (req, res) => {
   const { name } = req.params;
-  await employeeModel.find({ "name": {$regex: name.toString(), $options: 'i'}, "company": objectID(req.user.company)}, (err, document) => {
-    if(err){
-      res.status(500).send({ status: "error getting the employee" })
-    }else if(document && document.length >= 1){
-        res.status(200).send(document)
-    }else{
-      res.status(401).send({"status": "Warning !! You cannot list a employee who are not from your company"})
-    }
-  });
+  if(req.user.company){
+    await employeeModel.find({ "name": {$regex: name.toString(), $options: 'i'}, "company": objectID(req.user.company)}, (err, document) => {
+      if(err){
+        res.status(500).send({ status: "error getting the employee" })
+      }else if(document && document.length >= 1){
+          res.status(200).send(document)
+      }else{
+        res.status(401).send({"status": "Warning !! You cannot list a employee who are not from your company"})
+      }
+    });
+  }else{
+    res.status(401).send({"status": "Warning !! We can't get the company in your token"})
+  }
 };
 exports.getEmployeeByPosition = async (req, res) => {
   const { position } = req.params;
-  await employeeModel.find({ "position": {$regex: position.toString(), $options: 'i'}, "company": objectID(req.user.company)}, (err, document) => {
-    if(err){
-      res.status(500).send({ status: "error getting the employee" })
-    }else if(document && document.length >= 1){
-      res.status(200).send(document);
-    }else{
-      res.status(401).send({"status": "Warning !! You cannot list employees who are not from your company"})
-    }
-  });
+  if(req.user.company){
+    await employeeModel.find({ "position": {$regex: position.toString(), $options: 'i'}, "company": objectID(req.user.company)}, (err, document) => {
+      if(err){
+        res.status(500).send({ status: "error getting the employee" })
+      }else if(document && document.length >= 1){
+        res.status(200).send(document);
+      }else{
+        res.status(401).send({"status": "Warning !! You cannot list employees who are not from your company"})
+      }
+    }); 
+  }else{
+    res.status(401).send({"status": "Warning !! We can't get the company in your token"})
+  }
 };
 exports.getEmployeeByDepartament = async (req, res) => {
   const { departament } = req.params;
-  await employeeModel.find({ "departament": {$regex: departament.toString(), $options: 'i'},  "company": objectID(req.user.company)}, (err, document) => {
-    if(err){
-      res.status(500).send({ status: "error getting the employee" })
-    }else if(document && document.length >= 1){
-      res.status(200).send(document);
-    }else{
-      res.status(401).send({"status": "Warning !! You cannot list employees who are not from your company"})
-    }
-    
-  });
+  if(req.user.company){
+    await employeeModel.find({ "departament": {$regex: departament.toString(), $options: 'i'},  "company": objectID(req.user.company)}, (err, document) => {
+      if(err){
+        res.status(500).send({ status: "error getting the employee" })
+      }else if(document && document.length >= 1){
+        res.status(200).send(document);
+      }else{
+        res.status(401).send({"status": "Warning !! You cannot list employees who are not from your company"})
+      }
+    });
+  }else{
+    res.status(401).send({"status": "Warning !! We can't get the company in your token"})
+  }
 };
 
 // CRU

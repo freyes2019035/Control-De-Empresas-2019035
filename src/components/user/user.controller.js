@@ -1,6 +1,4 @@
 "use strict";
-const companyModel = require("../../models/company.models");
-const objectID = require("mongodb").ObjectID;
 const userModel = require("../../models/user.models");
 const bcrypt = require("bcrypt-nodejs");
 
@@ -12,68 +10,6 @@ exports.getUsers = async (req, res) => {
       ? res.status(500).send({ status: "error con get the users in db" })
       : res.status(200).send(docs);
   });
-};
-exports.createUser = async (req, res) => {
-  let user = new userModel();
-  const { userName, password, rol, company } = req.body;
-  if (userName && password && rol && company) {
-    user.userName = userName;
-    user.password = password;
-    user.rol = rol;
-    user.company = company;
-    user.password = await encryptPassword(password)
-    await companyModel.findOne(
-      { _id: objectID(company.toString()) },
-      (err, companyInfo) => {
-        if (err) {
-          console.log(err);
-        }
-        if (companyInfo) {
-          userModel.find(
-            {
-              $or: [
-                {
-                  userName: user.userName,
-                  rol: user.rol,
-                  company: user.company,
-                },
-              ],
-            },
-            (err, document) => {
-              if (err) {
-                res.status(500).send({ status: "error getting user from db" });
-              } else if (document && document.length >= 1) {
-                console.log(document);
-                res.status(500).send({ status: "user already exists in db" });
-              } else {
-                // user with nombre de empresa
-                // user.company = [companyInfo];
-                // Quitar si no se necesita en modelo quitar y poner Schema.ObjectId
-                user.save((err, document) => {
-                  if (err) {
-                    console.log(err);
-                    res
-                      .status(500)
-                      .send({
-                        status: "Error saving user check the paramaters",
-                      });
-                  } else {
-                    res
-                      .status(200)
-                      .send([{ status: "OK" }, { user: document }]);
-                  }
-                });
-              }
-            }
-          );
-        } else {
-          res.status(404).send({ status: "Company not found" });
-        }
-      }
-    );
-  } else {
-    res.status(500).send({ status: "missing some parameters" });
-  }
 };
 exports.createAdmin = async (userName, password, rol) => {
   let user = new userModel();

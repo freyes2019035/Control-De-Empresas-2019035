@@ -4,7 +4,8 @@
   "description": "Proyecto de control de empresas Kinal",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "start": "nodemon index.js"
   },
   "author": "Fredy Reyes",
   "license": "ISC",
